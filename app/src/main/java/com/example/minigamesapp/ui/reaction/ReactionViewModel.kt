@@ -34,11 +34,20 @@ class ReactionViewModel : ViewModel() {
     /** Génère une partie aléatoire et lance immédiatement le timer. */
     fun startGame() {
         timerJob?.cancel()
-        val target = Random.nextLong(5_000L, 30_000L)
-        val start  = Random.nextLong(0L, 20_000L)
         val speedFactor = Random.nextDouble(0.5, 3.0)
         val direction   = if (Random.nextBoolean()) 1L else -1L
         val step = direction * (speedFactor * 10).toLong().coerceAtLeast(5L)
+
+        // start et target générés de façon à ce que la cible soit toujours atteignable
+        val (start, target) = if (direction > 0L) {
+            // Timer croissant : start < target
+            val s = Random.nextLong(0L, 15_000L)
+            s to s + Random.nextLong(5_000L, 20_000L)
+        } else {
+            // Timer décroissant : start > target
+            val t = Random.nextLong(0L, 15_000L)
+            t + Random.nextLong(5_000L, 20_000L) to t
+        }
 
         _uiState.value = UiState(
             phase   = Phase.PLAYING,
