@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +40,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MiniGamesApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    // Pseudo partagé : persiste pendant toute la session, pré-remplit le champ au retour
+    var playerName by remember { mutableStateOf("") }
 
     NavHost(
         navController    = navController,
@@ -44,9 +50,11 @@ fun MiniGamesApp(modifier: Modifier = Modifier) {
     ) {
         composable<Home> { _ ->
             HomeScreen(
-                onReactionClick    = { name -> navController.navigate(Reaction(name)) },
-                onWordGameClick    = { name -> navController.navigate(WordGame(name)) },
-                onLeaderboardClick = { name -> navController.navigate(Leaderboard(name)) }
+                playerName         = playerName,
+                onPlayerNameChange = { playerName = it },
+                onReactionClick    = { navController.navigate(Reaction(playerName)) },
+                onWordGameClick    = { navController.navigate(WordGame(playerName)) },
+                onLeaderboardClick = { navController.navigate(Leaderboard(playerName)) }
             )
         }
         composable<Reaction> { entry ->

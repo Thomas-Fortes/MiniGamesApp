@@ -13,10 +13,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -25,11 +21,12 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun HomeScreen(
+    playerName: String,
+    onPlayerNameChange: (String) -> Unit,
     onReactionClick: (String) -> Unit,
     onWordGameClick: (String) -> Unit,
     onLeaderboardClick: (String) -> Unit
 ) {
-    var pseudo by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -53,8 +50,8 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value         = pseudo,
-            onValueChange = { pseudo = it },
+            value         = playerName,
+            onValueChange = onPlayerNameChange,
             label         = { Text("Votre pseudo") },
             singleLine    = true,
             modifier      = Modifier.fillMaxWidth(0.85f)
@@ -62,23 +59,23 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick  = { onReactionClick(pseudo) },
-            enabled  = pseudo.isNotBlank(),
+            onClick  = { onReactionClick(playerName) },
+            enabled  = playerName.isNotBlank(),
             modifier = Modifier.fillMaxWidth(0.75f)
         ) {
             Text("Jeu de Réaction", fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick  = { onWordGameClick(pseudo) },
-            enabled  = pseudo.isNotBlank(),
+            onClick  = { onWordGameClick(playerName) },
+            enabled  = playerName.isNotBlank(),
             modifier = Modifier.fillMaxWidth(0.75f)
         ) {
             Text("Mot Caché", fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
-            onClick  = { onLeaderboardClick(pseudo) },
+            onClick  = { onLeaderboardClick(playerName) },
             modifier = Modifier.fillMaxWidth(0.75f)
         ) {
             Text("Leaderboard", fontSize = 16.sp)
