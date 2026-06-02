@@ -1,7 +1,11 @@
 package com.example.minigamesapp.ui.wordgame
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.minigamesapp.data.AppDatabase
+import com.example.minigamesapp.data.Score
+import com.example.minigamesapp.data.ScoreRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -11,7 +15,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class WordGameViewModel : ViewModel() {
+class WordGameViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = ScoreRepository(AppDatabase.getDatabase(application).scoreDao())
+    private var playerName: String = ""
 
     enum class Phase { PLAYING, GAME_OVER }
 
@@ -55,7 +62,8 @@ class WordGameViewModel : ViewModel() {
     // ─── Cycle de vie ────────────────────────────────────────────────────────
 
     /** Démarre le timer et charge la première grille. */
-    fun startGame() {
+    fun startGame(playerName: String) {
+        this.playerName = playerName
         timerJob?.cancel()
         _uiState.value = UiState(bestScore = sessionBest)
         loadNewGrid()
@@ -82,10 +90,24 @@ class WordGameViewModel : ViewModel() {
         val final = _uiState.value.score
         if (final > sessionBest) sessionBest = final
         _uiState.update { it.copy(phase = Phase.GAME_OVER, bestScore = sessionBest) }
+        saveScore()
+    }
+
+    private fun saveScore() {
+        val scoreValue = _uiState.value.score
+        viewModelScope.launch {
+            repository.insertScore(
+                Score(
+                    playerName = playerName,
+                    gameName   = "Mot Caché",
+                    score      = scoreValue
+                )
+            )
+        }
     }
 
     /** Repart pour une nouvelle partie complète. */
-    fun reset() = startGame()
+    fun reset() = startGame(playerName)
 
     // ─── Gestion de la grille ────────────────────────────────────────────────
 

@@ -37,11 +37,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun WordGameScreen(
+    playerName: String,
     onBackClick: () -> Unit,
     viewModel: WordGameViewModel = viewModel()
 ) {
     // Lance une nouvelle partie dès que l'écran entre en composition
-    LaunchedEffect(Unit) { viewModel.startGame() }
+    LaunchedEffect(Unit) { viewModel.startGame(playerName) }
 
     val state by viewModel.uiState.collectAsState()
 

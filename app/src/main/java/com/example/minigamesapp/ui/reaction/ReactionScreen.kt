@@ -51,6 +51,7 @@ private fun feedbackMessage(gapMs: Long): String = when {
 
 @Composable
 fun ReactionScreen(
+    playerName: String,
     onBackClick: () -> Unit,
     viewModel: ReactionViewModel = viewModel()
 ) {
@@ -65,7 +66,7 @@ fun ReactionScreen(
     ) {
         when (state.phase) {
             ReactionViewModel.Phase.IDLE    -> IdlePhase(
-                onStart = { viewModel.startGame() },
+                onStart = { viewModel.startGame(playerName) },
                 onBack  = onBackClick
             )
             ReactionViewModel.Phase.PLAYING -> PlayingPhase(
@@ -74,9 +75,9 @@ fun ReactionScreen(
                 onBack  = { viewModel.reset(); onBackClick() }
             )
             ReactionViewModel.Phase.RESULT  -> ResultPhase(
-                state   = state,
-                onReplay = { viewModel.startGame() },
-                onBack  = { viewModel.reset(); onBackClick() }
+                state    = state,
+                onReplay = { viewModel.startGame(playerName) },
+                onBack   = { viewModel.reset(); onBackClick() }
             )
         }
     }

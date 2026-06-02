@@ -1,7 +1,11 @@
 package com.example.minigamesapp.ui.reaction
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.minigamesapp.data.AppDatabase
+import com.example.minigamesapp.data.Score
+import com.example.minigamesapp.data.ScoreRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -13,7 +17,10 @@ import kotlinx.coroutines.flow.update
 import kotlin.math.abs
 import kotlin.random.Random
 
-class ReactionViewModel : ViewModel() {
+class ReactionViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = ScoreRepository(AppDatabase.getDatabase(application).scoreDao())
+    private var playerName: String = ""
 
     enum class Phase { IDLE, PLAYING, RESULT }
 
@@ -32,7 +39,8 @@ class ReactionViewModel : ViewModel() {
     private var timerJob: Job? = null
 
     /** Génère une partie aléatoire et lance immédiatement le timer. */
-    fun startGame() {
+    fun startGame(playerName: String) {
+        this.playerName = playerName
         timerJob?.cancel()
         val speedFactor = Random.nextDouble(0.5, 3.0)
         val direction   = if (Random.nextBoolean()) 1L else -1L
@@ -92,6 +100,21 @@ class ReactionViewModel : ViewModel() {
             state.copy(
                 phase = Phase.RESULT,
                 gap   = abs(state.elapsed - state.target)
+            )
+        }
+        saveScore()
+    }
+
+    private fun saveScore() {
+        val state = _uiState.value
+        val scoreValue = maxOf(0, 10_000 - state.gap.toInt())
+        viewModelScope.launch {
+            repository.insertScore(
+                Score(
+                    playerName = playerName,
+                    gameName   = "Réaction",
+                    score      = scoreValue
+                )
             )
         }
     }

@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.minigamesapp.ui.home.HomeScreen
+import com.example.minigamesapp.ui.leaderboard.LeaderboardScreen
 import com.example.minigamesapp.ui.reaction.ReactionScreen
 import com.example.minigamesapp.ui.wordgame.WordGameScreen
 import com.example.minigamesapp.ui.theme.MiniGamesAppTheme
@@ -42,15 +44,22 @@ fun MiniGamesApp(modifier: Modifier = Modifier) {
     ) {
         composable<Home> { _ ->
             HomeScreen(
-                onReactionClick = { navController.navigate(Reaction) },
-                onWordGameClick = { navController.navigate(WordGame) }
+                onReactionClick    = { name -> navController.navigate(Reaction(name)) },
+                onWordGameClick    = { name -> navController.navigate(WordGame(name)) },
+                onLeaderboardClick = { name -> navController.navigate(Leaderboard(name)) }
             )
         }
-        composable<Reaction> { _ ->
-            ReactionScreen(onBackClick = { navController.popBackStack() })
+        composable<Reaction> { entry ->
+            val route = entry.toRoute<Reaction>()
+            ReactionScreen(playerName = route.playerName, onBackClick = { navController.popBackStack() })
         }
-        composable<WordGame> { _ ->
-            WordGameScreen(onBackClick = { navController.popBackStack() })
+        composable<WordGame> { entry ->
+            val route = entry.toRoute<WordGame>()
+            WordGameScreen(playerName = route.playerName, onBackClick = { navController.popBackStack() })
+        }
+        composable<Leaderboard> { entry ->
+            val route = entry.toRoute<Leaderboard>()
+            LeaderboardScreen(playerName = route.playerName, onBackClick = { navController.popBackStack() })
         }
     }
 }
